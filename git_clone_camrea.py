@@ -23,20 +23,22 @@
 #----------------------------------------------------------------------
 #	liuchangjian		2015-10-19		v0.1		create
 #	liuchangjian		2015-11-09		v0.2		add git fetch cmd!
+#	liuchangjian		2015-11-09		v0.3		add -r option!
 #
 #################################################################################
 
-import os,sys
+import os,sys,string
 
 # global var
 ard_version=2
 platform=3
 repos=[]
+sel_repo=""
 
 # git info
-username="liuchangjian"
 git_cmd="git clone "
-url="ssh://"+username+"@smartgit:29418/"
+url="ssh://$USER@smartgit:29418/"
+
 
 
 # Android 5.0 camera repos
@@ -120,6 +122,30 @@ def ReposSelect(ver,plt):
 
 	PlatSelect(plt,com,mtk,qcom)
 
+def SetRepo(ver,repo):
+	if ver == 1:
+		if not os.path.exists("ard_5.0"):
+			os.mkdir("ard_5.0")
+		os.chdir("ard_5.0")
+		
+		s_ver="ard_5.0"	
+	elif ver == 2:
+		if not os.path.exists("ard_5.1"):
+			os.mkdir("ard_5.1")
+		os.chdir("ard_5.1")
+		
+		s_ver="ard_5.1"	
+	elif ver == 3:
+		if not os.path.exists("ard_6.0"):
+			os.mkdir("ard_6.0")
+		os.chdir("ard_6.0")
+
+		s_ver="ard_6.0"
+	
+	rep =s_ver+"/"+repo
+	global repos
+	repos.append(rep)
+
 def PlatSelect(plt,com_r,mtk_r,qcom_r):
 	repos.extend(com_r)
 	if plt == 1:
@@ -132,8 +158,8 @@ def PlatSelect(plt,com_r,mtk_r,qcom_r):
 	else:
 		print "platform num:",plt,"is ERROR!!!"
 
-def CamReposClone(repos):
-	for x in repos:
+def CamReposClone(all_repos):
+	for x in all_repos:
 		a_ver,dir = x.split("/")
 		if not os.path.exists(dir):
 			cmd = git_cmd+url+x
@@ -141,7 +167,7 @@ def CamReposClone(repos):
 			os.system(cmd)
 		else:
 			cmd = "git fetch"
-			print cmd+" "+x
+			print cmd+": "+x
 			os.chdir(dir)
 			os.system(cmd)
 			os.chdir("..")
@@ -177,22 +203,29 @@ def ParseArgv():
 			else:
 				Usage()
 				sys.exit()
-		else:
+		elif sys.argv[i] == '-r':
+			if sys.argv[i+1]:
+				global sel_repo
+				sel_repo = sys.argv[i+1]
+				print "Select repo: ",sel_repo
+			else:
 				Usage()
 				sys.exit()
-					
 
 def Usage():
 	print 'Command Format :'
 	print '		git_clone_camera.py '
-	print '							[-a 1(Android 5.0)/2(Android 5.1)/3(Android 6.0)] [-p 1(mtk)/2(qcom)/3(mtk+qcom)]| [-h]'
+	print '							[-a 1(Android 5.0)/2(Android 5.1)/3(Android 6.0)] [-p 1(mtk)/2(qcom)/3(mtk+qcom)] [-r git_repo_name]| [-h]'
 
 
 if __name__ == '__main__':
-
-	ParseArgv()
 	
-	ReposSelect(ard_version,platform)
+	ParseArgv()
+
+	if sel_repo:
+		SetRepo(ard_version,sel_repo)
+	else:
+		ReposSelect(ard_version,platform)
 	
 	CamReposClone(repos)
 	
