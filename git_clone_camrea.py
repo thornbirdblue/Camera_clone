@@ -24,6 +24,7 @@
 #	liuchangjian		2015-10-19		v0.1		create
 #	liuchangjian		2015-11-09		v0.2		add git fetch cmd!
 #	liuchangjian		2015-11-09		v0.3		add -r option!
+#	liuchangjian		2016-01-15		v1.0		add the Save dir set!
 #
 #################################################################################
 
@@ -39,7 +40,9 @@ sel_repo=""
 git_cmd="git clone "
 url="ssh://$USER@smartgit:29418/"
 
-
+#DIR set
+repo_save_dir=os.environ.get("HOME")
+repo_dir_name="camera_git"
 
 # Android 5.0 camera repos
 camera_50_com_repos=(
@@ -57,9 +60,10 @@ camera_50_mtk_repos=(
 camera_50_qcom_repos=(
 	"ard_5.0/android_hardware_qcom_camera",
 	"ard_5.0/android_vendor_qcom_proprietary_mm-camera",
+	"ard_5.0/android_vendor_qcom_proprietary_mm-camerasdk",
 )
 
-# Android 5.0 camera repos
+# Android 5.1 camera repos
 camera_51_com_repos=(
 	"ard_5.1/android_frameworks_base",
 	"ard_5.1/android_frameworks_av",
@@ -75,6 +79,7 @@ camera_51_mtk_repos=(
 camera_51_qcom_repos=(
 	"ard_5.1/android_hardware_qcom_camera",
 	"ard_5.1/android_vendor_qcom_proprietary_mm-camera",
+	"ard_5.1/android_vendor_qcom_proprietary_mm-camerasdk",
 )
 
 # Android 6.0 camera repos
@@ -93,6 +98,7 @@ camera_60_mtk_repos=(
 camera_60_qcom_repos=(
 	"ard_6.0/android_hardware_qcom_camera",
 	"ard_6.0/android_vendor_qcom_proprietary_mm-camera",
+	"ard_6.0/android_vendor_qcom_proprietary_mm-camerasdk",
 )
 
 def ReposSelect(ver,plt):
@@ -211,11 +217,21 @@ def ParseArgv():
 			else:
 				Usage()
 				sys.exit()
+		elif sys.argv[i] == '-d':
+			EnvSet()
+
+def EnvSet():
+	print "Repo Save Dir is"+repo_save_dir+"/"+repo_dir_name
+	os.chdir(repo_save_dir)
+	if not os.path.exists(repo_dir_name):
+		os.mkdir(repo_dir_name)
+	os.chdir(repo_dir_name)
+	
 
 def Usage():
 	print 'Command Format :'
 	print '		git_clone_camera.py '
-	print '							[-a 1(Android 5.0)/2(Android 5.1)/3(Android 6.0)] [-p 1(mtk)/2(qcom)/3(mtk+qcom)] [-r git_repo_name]| [-h]'
+	print '							[-d (Repo Save to $HOME/camera_git/)][-a 1(Android 5.0)/2(Android 5.1)/3(Android 6.0)] [-p 1(mtk)/2(qcom)/3(mtk+qcom)] [-r git_repo_name]| [-h]'
 
 
 if __name__ == '__main__':
